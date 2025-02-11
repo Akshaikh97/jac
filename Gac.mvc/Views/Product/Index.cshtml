@@ -1,0 +1,111 @@
+﻿@model List<Gac.mvc.Models.Product>
+@{
+    ViewData["Title"] = "Product Management";
+}
+
+<h2>Product Form</h2>
+
+<form asp-action="Save" method="post">
+    <div class="form-group">
+        <label>Product Name:</label>
+        <input type="text" name="Name" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label>Sales ID:</label>
+        <select name="SalesId" id="SalesDropdown" class="form-control" required>
+            <option value="">-- Select Sales --</option>
+            @foreach (var sales in ViewBag.SalesList)
+            {
+                <option value="@sales.SalesId">@sales.SalesId</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Sales Address 1:</label>
+        <input type="text" id="SalesAddress1" class="form-control" readonly />
+    </div>
+    <div class="form-group">
+        <label>Sales Address 2:</label>
+        <input type="text" id="SalesAddress2" class="form-control" readonly />
+    </div>
+    <div class="form-group">
+        <label>Sales Address 3:</label>
+        <input type="text" id="SalesAddress3" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label>Unit:</label>
+        <input type="number" name="Unit" id="Unit" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Price:</label>
+        <input type="number" name="Price" id="Price" class="form-control" step="0.01" required />
+    </div>
+    <div class="form-group">
+        <label>Amount:</label>
+        <input type="text" name="Amount" id="Amount" class="form-control" readonly />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+<hr />
+
+<h2>Saved Products</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product ID</th>
+            <th>Name</th>
+            <th>Sales ID</th>
+            <th>Unit</th>
+            <th>Price</th>
+            <th>Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.ProductId</td>
+                <td>@product.Name</td>
+                <td>@product.SalesId</td>
+                <td>@product.Unit</td>
+                <td>@product.Price</td>
+                <td>@product.Amount</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#SalesDropdown").change(function () {
+            var salesId = $(this).val();
+            if (salesId) {
+                $.getJSON("/Product/GetSalesDetails?salesId=" + salesId, function (data) {
+                    if (data) {
+                        $("#SalesAddress1").val(data.salesAddress1);
+                        $("#SalesAddress2").val(data.salesAddress2);
+                        $("#SalesAddress3").val(data.salesAddress3);
+                    }
+                });
+            } else {
+                $("#SalesAddress1, #SalesAddress2, #SalesAddress3").val('');
+            }
+        });
+
+        $("#Unit, #Price").on("input", function () {
+            var unit = $("#Unit").val();
+            var price = $("#Price").val();
+            if (unit && price) {
+                $("#Amount").val(unit * price);
+            } else {
+                $("#Amount").val('');
+            }
+        });
+    });
+</script>
